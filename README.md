@@ -5,7 +5,7 @@
 This document outlines notable issues discovered in the DFC2023 dataset that impact its reliability for benchmarking and evaluation. Based on comprehensive analysis of 1,773 samples:
 
 1. **Widespread Zero-Height Building Annotations** (85.1% of images contain at least one)
-2. **Mixed Annotation Quality** across the dataset (87.0% of images contain mixed annotation types)
+2. **Mixed Annotation Quality across the dataset** (87.0% of images contain mixed annotation types)
 3. **Rooftop vs. Building Base Annotations** (significant number of samples with incorrect annotation reference)
 
 These issues affect a significant portion of the dataset and deserve attention from the DFC organizing committee.

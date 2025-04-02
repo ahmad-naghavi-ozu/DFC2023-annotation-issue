@@ -164,7 +164,7 @@ python process_annotations.py [--coco-path COCO_PATH] [--output-coco-path OUTPUT
 
 By default, the script reads from `buildings_only_train.json` and writes to `processed_annotations.json`, but these paths can be customized via command-line arguments.
 
-> **Note:** For convenience, we have already included the processed annotations file `processed_annotations.json` in this repository, so you can skip the processing step and directly use the visualization tool.
+> **Note:** The processed annotations file needs to be generated on your local machine by running the processing script. The file is not included in this GitHub repository due to its size.
 
 ### Visualizing Annotations
 

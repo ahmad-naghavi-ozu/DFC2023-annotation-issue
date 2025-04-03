@@ -73,15 +73,21 @@ Unlike other issues in the dataset, detecting rooftop vs. base annotation proble
 - Cannot be reliably automated through geometry or attribute analysis
 - Demands comparison between the annotation and the actual building appearance in imagery
 
-### Example Cases
-The following samples have been visually identified as containing rooftop annotations instead of building base footprints:
+## Visual Examples
 
-- `SV_Berlin_52.5354_13.4826`
-- `SV_Berlin_52.5303_13.4828`
-- `SV_Rio_-22.9068_-43.1956`
-- `SV_Rio_-22.9077_-43.1803`
+Example images illustrating both annotation quality issues and rooftop vs. base misannotations are available in the `images` folder:
 
-These examples represent just a subset of the affected samples. More instances will be documented as they are identified through ongoing visual inspection.
+### Mixed Annotation Quality Examples
+- ![Valid/zero-height/invalid example 1](images/valid_zero-height_invalid_example01.jpg)
+- ![Valid/zero-height/invalid example 2](images/valid_zero-height_invalid_example02.jpg)
+- ![Valid/zero-height/invalid example 3](images/valid_zero-height_invalid_example03.jpg)
+- ![Valid/zero-height/invalid example 4](images/valid_zero-height_invalid_example04.jpg)
+
+### Rooftop vs. Base Misannotation Examples
+- ![Rooftop/base misannotation example 1](images/rooftop_base_mis-annotation_example01.jpg)
+- ![Rooftop/base misannotation example 2](images/rooftop_base_mis-annotation_example02.jpg)
+
+These visual examples clearly demonstrate the annotation issues described in this document and can be referenced when evaluating the dataset quality.
 
 ## Additional Dataset Statistics
 

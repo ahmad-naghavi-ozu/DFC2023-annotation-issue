@@ -78,14 +78,16 @@ Unlike other issues in the dataset, detecting rooftop vs. base annotation proble
 Example images illustrating both annotation quality issues and rooftop vs. base misannotations are available in the `images` folder:
 
 ### Mixed Annotation Quality Examples
-- ![Valid/zero-height/invalid example 1](images/valid_zero-height_invalid_example01.jpg)
-- ![Valid/zero-height/invalid example 2](images/valid_zero-height_invalid_example02.jpg)
-- ![Valid/zero-height/invalid example 3](images/valid_zero-height_invalid_example03.jpg)
-- ![Valid/zero-height/invalid example 4](images/valid_zero-height_invalid_example04.jpg)
+- <img src="images/valid_zero-height_invalid_example01.jpg" alt="Valid/zero-height/invalid example 1" width="650">
+- <img src="images/valid_zero-height_invalid_example02.jpg" alt="Valid/zero-height/invalid example 2" width="650">
+- <img src="images/valid_zero-height_invalid_example03.jpg" alt="Valid/zero-height/invalid example 3" width="650">
+- <img src="images/valid_zero-height_invalid_example04.jpg" alt="Valid/zero-height/invalid example 4" width="650">
 
 ### Rooftop vs. Base Misannotation Examples
-- ![Rooftop/base misannotation example 1](images/rooftop_base_mis-annotation_example01.jpg)
-- ![Rooftop/base misannotation example 2](images/rooftop_base_mis-annotation_example02.jpg)
+- <img src="images/rooftop_base_mis-annotation_example01.jpg" alt="Rooftop/base misannotation example 1" width="650">
+- <img src="images/rooftop_base_mis-annotation_example02.jpg" alt="Rooftop/base misannotation example 2" width="650">
+- <img src="images/rooftop_base_mis-annotation_example03.jpg" alt="Rooftop/base misannotation example 3" width="650">
+- <img src="images/rooftop_base_mis-annotation_example04.jpg" alt="Rooftop/base misannotation example 4" width="650">
 
 These visual examples clearly demonstrate the annotation issues described in this document and can be referenced when evaluating the dataset quality.
 

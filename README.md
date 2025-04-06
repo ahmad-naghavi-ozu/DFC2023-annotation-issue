@@ -107,19 +107,19 @@ Example images illustrating both footprint quality issues and rooftop vs. base m
 
 | Example 1: RLE format Missed | Example 1: RLE format Included |
 |:----------------------------:|:------------------------------:|
-| ![Valid/zero-height/invalid example 1 without RLE](images/valid_zero-height_invalid_example01_rle-.jpg) | ![Valid/zero-height/invalid example 1 with RLE](images/valid_zero-height_invalid_example01_rle+.jpg) |
+| <img src="images/valid_zero-height_invalid_example01_rle-.jpg" width="400"/> | <img src="images/valid_zero-height_invalid_example01_rle+.jpg" width="400"/> |
 
 | Example 2: RLE format Missed | Example 2: RLE format Included |
 |:----------------------------:|:------------------------------:|
-| ![Valid/zero-height/invalid example 2 without RLE](images/valid_zero-height_invalid_example02_rle-.jpg) | ![Valid/zero-height/invalid example 2 with RLE](images/valid_zero-height_invalid_example02_rle+.jpg) |
+| <img src="images/valid_zero-height_invalid_example02_rle-.jpg" width="400"/> | <img src="images/valid_zero-height_invalid_example02_rle+.jpg" width="400"/> |
 
 | Example 3: RLE format Missed | Example 3: RLE format Included |
 |:----------------------------:|:------------------------------:|
-| ![Valid/zero-height/invalid example 3 without RLE](images/valid_zero-height_invalid_example03_rle-.jpg) | ![Valid/zero-height/invalid example 3 with RLE](images/valid_zero-height_invalid_example03_rle+.jpg) |
+| <img src="images/valid_zero-height_invalid_example03_rle-.jpg" width="400"/> | <img src="images/valid_zero-height_invalid_example03_rle+.jpg" width="400"/> |
 
 | Example 4: RLE format Missed | Example 4: RLE format Included |
 |:----------------------------:|:------------------------------:|
-| ![Valid/zero-height/invalid example 4 without RLE](images/valid_zero-height_invalid_example04_rle-.jpg) | ![Valid/zero-height/invalid example 4 with RLE](images/valid_zero-height_invalid_example04_rle+.jpg) |
+| <img src="images/valid_zero-height_invalid_example04_rle-.jpg" width="400"/> | <img src="images/valid_zero-height_invalid_example04_rle+.jpg" width="400"/> |
 
 ### Rooftop vs. Base Misrepresentation Examples
 

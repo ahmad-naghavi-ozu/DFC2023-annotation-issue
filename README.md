@@ -140,10 +140,32 @@ Unlike other issues in the dataset, detecting rooftop vs. base footprint problem
 
 ### Rooftop vs. Base Misrepresentation Examples
 
-- <img src="images/rooftop_base_mis-annotation_example01.jpg" alt="Rooftop/base misannotation example 1" width="650">
-- <img src="images/rooftop_base_mis-annotation_example02.jpg" alt="Rooftop/base misannotation example 2" width="650">
-- <img src="images/rooftop_base_mis-annotation_example03.jpg" alt="Rooftop/base misannotation example 3" width="650">
-- <img src="images/rooftop_base_mis-annotation_example04.jpg" alt="Rooftop/base misannotation example 4" width="650">
+<table>
+  <tr>
+    <td align="center"><b>Example 1:</b> Rooftop/Base Misrepresentation</td>
+  </tr>
+  <tr>
+    <td><img src="images/rooftop_base_mis-annotation_example01.jpg" alt="Rooftop/base misannotation example 1" width="650"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Example 2:</b> Rooftop/Base Misrepresentation</td>
+  </tr>
+  <tr>
+    <td><img src="images/rooftop_base_mis-annotation_example02.jpg" alt="Rooftop/base misannotation example 2" width="650"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Example 3:</b> Rooftop/Base Misrepresentation</td>
+  </tr>
+  <tr>
+    <td><img src="images/rooftop_base_mis-annotation_example03.jpg" alt="Rooftop/base misannotation example 3" width="650"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Example 4:</b> Rooftop/Base Misrepresentation</td>
+  </tr>
+  <tr>
+    <td><img src="images/rooftop_base_mis-annotation_example04.jpg" alt="Rooftop/base misannotation example 4" width="650"/></td>
+  </tr>
+</table>
 
 These visual examples clearly demonstrate the footprint issues described in this document and can be referenced when evaluating the dataset quality.
 

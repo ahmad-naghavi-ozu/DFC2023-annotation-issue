@@ -103,21 +103,40 @@ Unlike other issues in the dataset, detecting rooftop vs. base footprint problem
 
 ### Mixed Footprint Quality Examples
 
-**Example 1:**  
-<img src="images/valid_zero-height_invalid_example01_rle-.jpg" alt="Example 1: RLE format Missed" width="650">
-<img src="images/valid_zero-height_invalid_example01_rle+.jpg" alt="Example 1: RLE format Included" width="650">
-
-**Example 2:**  
-<img src="images/valid_zero-height_invalid_example02_rle-.jpg" alt="Example 2: RLE format Missed" width="650">
-<img src="images/valid_zero-height_invalid_example02_rle+.jpg" alt="Example 2: RLE format Included" width="650">
-
-**Example 3:**  
-<img src="images/valid_zero-height_invalid_example03_rle-.jpg" alt="Example 3: RLE format Missed" width="650">
-<img src="images/valid_zero-height_invalid_example03_rle+.jpg" alt="Example 3: RLE format Included" width="650">
-
-**Example 4:**  
-<img src="images/valid_zero-height_invalid_example04_rle-.jpg" alt="Example 4: RLE format Missed" width="650">
-<img src="images/valid_zero-height_invalid_example04_rle+.jpg" alt="Example 4: RLE format Included" width="650">
+<table>
+  <tr>
+    <td align="center"><b>Example 1:</b> RLE format Missed</td>
+    <td align="center"><b>Example 1:</b> RLE format Included</td>
+  </tr>
+  <tr>
+    <td><img src="images/valid_zero-height_invalid_example01_rle-.jpg" alt="Example 1: RLE format Missed" width="650"/></td>
+    <td><img src="images/valid_zero-height_invalid_example01_rle+.jpg" alt="Example 1: RLE format Included" width="650"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Example 2:</b> RLE format Missed</td>
+    <td align="center"><b>Example 2:</b> RLE format Included</td>
+  </tr>
+  <tr>
+    <td><img src="images/valid_zero-height_invalid_example02_rle-.jpg" alt="Example 2: RLE format Missed" width="650"/></td>
+    <td><img src="images/valid_zero-height_invalid_example02_rle+.jpg" alt="Example 2: RLE format Included" width="650"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Example 3:</b> RLE format Missed</td>
+    <td align="center"><b>Example 3:</b> RLE format Included</td>
+  </tr>
+  <tr>
+    <td><img src="images/valid_zero-height_invalid_example03_rle-.jpg" alt="Example 3: RLE format Missed" width="650"/></td>
+    <td><img src="images/valid_zero-height_invalid_example03_rle+.jpg" alt="Example 3: RLE format Included" width="650"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Example 4:</b> RLE format Missed</td>
+    <td align="center"><b>Example 4:</b> RLE format Included</td>
+  </tr>
+  <tr>
+    <td><img src="images/valid_zero-height_invalid_example04_rle-.jpg" alt="Example 4: RLE format Missed" width="650"/></td>
+    <td><img src="images/valid_zero-height_invalid_example04_rle+.jpg" alt="Example 4: RLE format Included" width="650"/></td>
+  </tr>
+</table>
 
 ### Rooftop vs. Base Misrepresentation Examples
 

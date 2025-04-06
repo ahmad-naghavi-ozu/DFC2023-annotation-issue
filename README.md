@@ -103,12 +103,21 @@ Unlike other issues in the dataset, detecting rooftop vs. base footprint problem
 
 ### Mixed Footprint Quality Examples
 
-| RLE format Missed | RLE format Included |
-|:---:|:---:|
-| ![Example 1: RLE format Missed](images/valid_zero-height_invalid_example01_rle-.jpg) | ![Example 1: RLE format Included](images/valid_zero-height_invalid_example01_rle+.jpg) |
-| ![Example 2: RLE format Missed](images/valid_zero-height_invalid_example02_rle-.jpg) | ![Example 2: RLE format Included](images/valid_zero-height_invalid_example02_rle+.jpg) |
-| ![Example 3: RLE format Missed](images/valid_zero-height_invalid_example03_rle-.jpg) | ![Example 3: RLE format Included](images/valid_zero-height_invalid_example03_rle+.jpg) |
-| ![Example 4: RLE format Missed](images/valid_zero-height_invalid_example04_rle-.jpg) | ![Example 4: RLE format Included](images/valid_zero-height_invalid_example04_rle+.jpg) |
+**Example 1:**  
+<img src="images/valid_zero-height_invalid_example01_rle-.jpg" alt="Example 1: RLE format Missed" width="650">
+<img src="images/valid_zero-height_invalid_example01_rle+.jpg" alt="Example 1: RLE format Included" width="650">
+
+**Example 2:**  
+<img src="images/valid_zero-height_invalid_example02_rle-.jpg" alt="Example 2: RLE format Missed" width="650">
+<img src="images/valid_zero-height_invalid_example02_rle+.jpg" alt="Example 2: RLE format Included" width="650">
+
+**Example 3:**  
+<img src="images/valid_zero-height_invalid_example03_rle-.jpg" alt="Example 3: RLE format Missed" width="650">
+<img src="images/valid_zero-height_invalid_example03_rle+.jpg" alt="Example 3: RLE format Included" width="650">
+
+**Example 4:**  
+<img src="images/valid_zero-height_invalid_example04_rle-.jpg" alt="Example 4: RLE format Missed" width="650">
+<img src="images/valid_zero-height_invalid_example04_rle+.jpg" alt="Example 4: RLE format Included" width="650">
 
 ### Rooftop vs. Base Misrepresentation Examples
 

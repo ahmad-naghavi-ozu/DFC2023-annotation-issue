@@ -105,21 +105,51 @@ Example images illustrating both footprint quality issues and rooftop vs. base m
 
 ### Mixed Footprint Quality Examples
 
-| Example 1: RLE format Missed | Example 1: RLE format Included |
-|:----------------------------:|:------------------------------:|
-| <img src="images/valid_zero-height_invalid_example01_rle-.jpg" width="400"/> | <img src="images/valid_zero-height_invalid_example01_rle+.jpg" width="400"/> |
+<div align="center">
+   <div style="display: flex; justify-content: space-between;">
+      <div style="text-align: center;">
+         <span style="font-weight: normal">Example 1: RLE format Missed</span><br>
+         <img src="images/valid_zero-height_invalid_example01_rle-.jpg" width="500"/>
+      </div>
+      <div style="text-align: center;">
+         <span style="font-weight: normal">Example 1: RLE format Included</span><br>
+         <img src="images/valid_zero-height_invalid_example01_rle+.jpg" width="500"/>
+      </div>
+   </div>
+   
+   <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+      <div style="text-align: center;">
+         <span style="font-weight: normal">Example 2: RLE format Missed</span><br>
+         <img src="images/valid_zero-height_invalid_example02_rle-.jpg" width="500"/>
+      </div>
+      <div style="text-align: center;">
+         <span style="font-weight: normal">Example 2: RLE format Included</span><br>
+         <img src="images/valid_zero-height_invalid_example02_rle+.jpg" width="500"/>
+      </div>
+   </div>
 
-| Example 2: RLE format Missed | Example 2: RLE format Included |
-|:----------------------------:|:------------------------------:|
-| <img src="images/valid_zero-height_invalid_example02_rle-.jpg" width="400"/> | <img src="images/valid_zero-height_invalid_example02_rle+.jpg" width="400"/> |
+   <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+      <div style="text-align: center;">
+         <span style="font-weight: normal">Example 3: RLE format Missed</span><br>
+         <img src="images/valid_zero-height_invalid_example03_rle-.jpg" width="500"/>
+      </div>
+      <div style="text-align: center;">
+         <span style="font-weight: normal">Example 3: RLE format Included</span><br>
+         <img src="images/valid_zero-height_invalid_example03_rle+.jpg" width="500"/>
+      </div>
+   </div>
 
-| Example 3: RLE format Missed | Example 3: RLE format Included |
-|:----------------------------:|:------------------------------:|
-| <img src="images/valid_zero-height_invalid_example03_rle-.jpg" width="400"/> | <img src="images/valid_zero-height_invalid_example03_rle+.jpg" width="400"/> |
-
-| Example 4: RLE format Missed | Example 4: RLE format Included |
-|:----------------------------:|:------------------------------:|
-| <img src="images/valid_zero-height_invalid_example04_rle-.jpg" width="400"/> | <img src="images/valid_zero-height_invalid_example04_rle+.jpg" width="400"/> |
+   <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+      <div style="text-align: center;">
+         <span style="font-weight: normal">Example 4: RLE format Missed</span><br>
+         <img src="images/valid_zero-height_invalid_example04_rle-.jpg" width="500"/>
+      </div>
+      <div style="text-align: center;">
+         <span style="font-weight: normal">Example 4: RLE format Included</span><br>
+         <img src="images/valid_zero-height_invalid_example04_rle+.jpg" width="500"/>
+      </div>
+   </div>
+</div>
 
 ### Rooftop vs. Base Misrepresentation Examples
 

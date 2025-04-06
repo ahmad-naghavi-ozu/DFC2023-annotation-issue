@@ -12,10 +12,19 @@ from PIL import Image
 from shapely.geometry import Polygon
 import datetime
 
-# Define default paths
-BASE_DIR = r"c:\Users\Ahmad\Desktop\Ozyegin University\research\datasets\DFC2023C"
-DEFAULT_ORIGINAL_COCO_PATH = os.path.join(BASE_DIR, "buildings_only_train.json")
-DEFAULT_PROCESSED_COCO_PATH = os.path.join(BASE_DIR, "processed_annotations.json")
+# Define paths dynamically based on the script location
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+# Define JSON directory and ensure it exists
+JSON_DIR = os.path.join(BASE_DIR, "JSON")
+os.makedirs(JSON_DIR, exist_ok=True)
+
+# Define statistics directory and ensure it exists
+STATS_DIR = os.path.join(BASE_DIR, "statistics")
+os.makedirs(STATS_DIR, exist_ok=True)
+
+DEFAULT_ORIGINAL_COCO_PATH = os.path.join(JSON_DIR, "buildings_only_train.json")
+DEFAULT_PROCESSED_COCO_PATH = os.path.join(JSON_DIR, "processed_annotations.json")
 DEFAULT_RGB_FOLDER = os.path.join(BASE_DIR, "train", "rgb")
 
 # Define colors for different annotation types
@@ -23,8 +32,79 @@ COLORS = {
     "original": "green",
     "valid_building": "blue",
     "zero_height_building": "red",
-    "invalid_polygon": "orange"
+    "invalid_polygon": "orange",
+    "invalid_building": "orange"  # Add compatibility with updated label
 }
+
+def decode_rle(rle, shape):
+    """
+    Decode RLE format to binary mask.
+    
+    Args:
+        rle (dict): COCO RLE format with 'counts' and 'size' keys
+        shape (tuple): Shape of the output mask (height, width)
+        
+    Returns:
+        np.ndarray: Binary mask
+    """
+    if isinstance(rle['counts'], list):
+        # Handle uncompressed RLE format
+        mask = np.zeros(shape[0] * shape[1], dtype=np.uint8)
+        counts = rle['counts']
+        pos = 0
+        for i, count in enumerate(counts):
+            val = i % 2  # 0, 1, 0, 1, ...
+            mask[pos:pos+count] = val
+            pos += count
+        return mask.reshape(shape)
+    else:
+        # Handle compressed RLE format using pycocotools if possible
+        try:
+            from pycocotools import mask as coco_mask
+            return coco_mask.decode(rle).astype(np.uint8)
+        except ImportError:
+            print("Warning: pycocotools not available, using fallback RLE decoder")
+            # Fallback for compressed RLE - this is a simple implementation
+            import zlib
+            from itertools import groupby
+            
+            if isinstance(rle['counts'], bytes):
+                # Decompress if the counts are compressed
+                rle_counts = zlib.decompress(rle['counts']).decode('ascii')
+            else:
+                rle_counts = rle['counts']
+                
+            counts = [int(x) for x in rle_counts.split()]
+            mask = np.zeros(shape[0] * shape[1], dtype=np.uint8)
+            start = 0
+            for i, count in enumerate(counts):
+                val = i % 2
+                end = start + count
+                mask[start:end] = val
+                start = end
+            return mask.reshape(shape)
+
+def rle_to_contours(rle, shape):
+    """
+    Convert RLE format to contours for visualization.
+    
+    Args:
+        rle (dict): COCO RLE format with 'counts' and 'size' keys
+        shape (tuple): Shape of the output mask (height, width)
+        
+    Returns:
+        list: List of contours that can be plotted
+    """
+    import cv2
+    
+    # Decode RLE to binary mask
+    mask = decode_rle(rle, shape)
+    
+    # Find contours in the mask
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    # Convert OpenCV contours to a list of points for matplotlib
+    return [contour.reshape(-1, 2) for contour in contours if len(contour) >= 3]
 
 # Terminal logger class that outputs to both console and file
 class TerminalLogger:
@@ -74,11 +154,12 @@ class JSONAnnotationViewer:
         """Load both original and processed COCO annotations"""
         print("## Loading Data")
         print("Loading original COCO data...")
+        start_time = datetime.datetime.now()
         with open(self.original_coco_path) as f:
             self.original_coco = json.load(f)
         
         total_original = len(self.original_coco.get('annotations', []))
-        print(f"Loaded {total_original} original annotations")
+        print(f"Loaded {total_original} original building footprints")
         
         # Index original annotations by image_id for faster lookup
         self.original_annotations_by_image = {}
@@ -93,7 +174,7 @@ class JSONAnnotationViewer:
             self.processed_coco = json.load(f)
         
         total_processed = len(self.processed_coco.get('annotations', []))
-        print(f"Loaded {total_processed} processed annotations")
+        print(f"Loaded {total_processed} processed building footprints")
         
         # Count total polygons/building footprints (may be different from annotations count)
         total_polygons = 0
@@ -120,29 +201,6 @@ class JSONAnnotationViewer:
         # Create different views based on annotation types
         self.create_views()
         
-        # Log detailed statistics about annotation types
-        print("\n## Annotation Statistics")
-        
-        # Add key counts summary before detailed tables
-        print(f"\n### Key Counts")
-        print(f"- Total Images: {total_images}")
-        print(f"- Total Polygons/Building Footprints: {total_polygons}")
-        print(f"- Total Building Annotations: {total_processed}")
-        if total_polygons != total_processed:
-            print(f"- Difference (polygons - annotations): {total_polygons - total_processed}")
-            print(f"  (This difference occurs because some annotations contain multiple polygons)")
-        
-        # Create and print the image statistics table with better alignment
-        image_stats_data = [
-            ["Images in COCO File", total_images, "100.0%"]
-        ]
-        
-        for view_name, image_ids in self.views.items():
-            percentage = (len(image_ids) / total_images * 100) if total_images > 0 else 0
-            image_stats_data.append([view_name, len(image_ids), f"{percentage:.1f}%"])
-        
-        self.print_markdown_table("Image Statistics", ["Category", "Count", "Percentage"], image_stats_data)
-        
         # Count polygons by type
         valid_count = 0
         zero_height_count = 0
@@ -155,27 +213,80 @@ class JSONAnnotationViewer:
                     valid_count += 1
                 elif label == "zero_height_building":
                     zero_height_count += 1
-                elif label == "invalid_polygon":
+                elif label == "invalid_polygon" or label == "invalid_building":
                     invalid_count += 1
         
+        # Calculate time taken
+        end_time = datetime.datetime.now()
+        load_time = (end_time - start_time).total_seconds()
+        
+        # Log detailed statistics about annotation types
+        print("\n## Building Footprint Statistics")
+        
+        # Add key counts summary before detailed tables (similar to process_annotations.py)
+        print(f"\n### Summary")
+        print(f"- Total Images: {total_images}")
+        print(f"- Total Building Footprints: {total_processed}")
+        print(f"- Total Polygons in Footprints: {total_polygons}")
+        if total_polygons != total_processed:
+            print(f"- Difference (polygons - footprints): {total_polygons - total_processed}")
+            print(f"  (This difference occurs because some building footprints contain multiple polygons)")
+        
+        # Print detailed statistics summary like process_annotations.py
+        print(f"\n### Processing Results")
+        print(f"- Invalid building footprints: {invalid_count} ({invalid_count/total_processed*100:.2f}% of all footprints)")
+        
+        valid_footprints = total_processed - invalid_count
+        if valid_footprints > 0:
+            valid_percentage = valid_count / valid_footprints * 100
+            zero_height_percentage = zero_height_count / valid_footprints * 100
+            print(f"- Zero-height building footprints: {zero_height_count} ({zero_height_percentage:.2f}% of valid footprints)")
+            print(f"- Valid building footprints with height: {valid_count} ({valid_percentage:.2f}% of valid footprints)")
+        
+        print(f"- Data loading completed in {load_time:.2f} seconds")
+        
+        # Create and print the image statistics table with better alignment
+        image_stats_data = [
+            ["Images in COCO File", total_images, "100.00%"]
+        ]
+        
+        for view_name, image_ids in self.views.items():
+            percentage = (len(image_ids) / total_images * 100) if total_images > 0 else 0
+            image_stats_data.append([view_name, len(image_ids), f"{percentage:.2f}%"])
+        
+        self.print_markdown_table("Image Statistics", ["Category", "Count", "Percentage"], image_stats_data)
+        
         # Create and print the polygon statistics table with better alignment
-        polygon_stats_data = [
-            ["Original Building Annotations", total_original, "100.0%"]
+        footprint_stats_data = [
+            ["Original Building Footprints", total_original, "100.00%"]
         ]
         
         processed_percentage = (total_processed / total_original * 100) if total_original > 0 else 0
-        valid_percentage = (valid_count / total_processed * 100) if total_processed > 0 else 0
-        zero_height_percentage = (zero_height_count / total_processed * 100) if total_processed > 0 else 0
-        invalid_percentage = (invalid_count / total_processed * 100) if total_processed > 0 else 0
+        valid_percentage_of_all = (valid_count / total_processed * 100) if total_processed > 0 else 0
+        zero_height_percentage_of_all = (zero_height_count / total_processed * 100) if total_processed > 0 else 0
+        invalid_percentage_of_all = (invalid_count / total_processed * 100) if total_processed > 0 else 0
         
-        polygon_stats_data.extend([
-            ["Processed Building Annotations", total_processed, f"{processed_percentage:.1f}%"],
-            ["Valid Building Annotations", valid_count, f"{valid_percentage:.1f}%"],
-            ["Zero Height Building Annotations", zero_height_count, f"{zero_height_percentage:.1f}%"],
-            ["Invalid Building Annotations", invalid_count, f"{invalid_percentage:.1f}%"]
+        footprint_stats_data.extend([
+            ["Processed Building Footprints", total_processed, f"{processed_percentage:.2f}%"],
+            ["Valid Building Footprints", valid_count, f"{valid_percentage_of_all:.2f}%"],
+            ["Zero-Height Building Footprints", zero_height_count, f"{zero_height_percentage_of_all:.2f}%"],
+            ["Invalid Building Footprints", invalid_count, f"{invalid_percentage_of_all:.2f}%"]
         ])
         
-        self.print_markdown_table("Building Annotation Statistics", ["Category", "Count", "Percentage"], polygon_stats_data)
+        self.print_markdown_table("Building Footprint Statistics", ["Category", "Count", "Percentage"], footprint_stats_data)
+        
+        # Report on images with and without annotations
+        images_with_annotations = len(self.view_maps["all_images"])
+        images_without_annotations = total_images - images_with_annotations
+        with_annotation_percent = (images_with_annotations / total_images * 100) if total_images > 0 else 0
+        without_annotation_percent = (images_without_annotations / total_images * 100) if total_images > 0 else 0
+        
+        coverage_stats_data = [
+            ["Images with building footprints", images_with_annotations, f"{with_annotation_percent:.2f}%"],
+            ["Images without building footprints", images_without_annotations, f"{without_annotation_percent:.2f}%"]
+        ]
+        
+        self.print_markdown_table("Coverage Statistics", ["Category", "Count", "Percentage"], coverage_stats_data)
         
         print("\n---\n")
     
@@ -239,9 +350,9 @@ class JSONAnnotationViewer:
                 elif label == "zero_height_building":
                     self.view_maps["with_zero_height"].add(image_id)
                     annotation_types_by_image[image_id].add("zero_height_building")
-                elif label == "invalid_polygon":
+                elif label == "invalid_polygon" or label == "invalid_building":
                     self.view_maps["with_invalid"].add(image_id)
-                    annotation_types_by_image[image_id].add("invalid_polygon")
+                    annotation_types_by_image[image_id].add("invalid_building")  # Standardize on "invalid_building"
         
         # Second pass: find images that have all three types or mixed types
         for image_id, types in annotation_types_by_image.items():
@@ -255,8 +366,8 @@ class JSONAnnotationViewer:
         self.views = {
             "Images with Any Annotations": list(self.view_maps["all_images"]),
             "With Valid Buildings": list(self.view_maps["with_valid_buildings"]),
-            "With Zero Height Buildings": list(self.view_maps["with_zero_height"]),
-            "With Invalid Polygons": list(self.view_maps["with_invalid"]),
+            "With Zero-Height Buildings": list(self.view_maps["with_zero_height"]),
+            "With Invalid Buildings": list(self.view_maps["with_invalid"]),
             "With All Three Types": list(self.view_maps["with_all_three_types"]),
             "With Mixed Types": list(self.view_maps["with_mixed_types"])
         }
@@ -533,7 +644,7 @@ class JSONAnnotationViewer:
             original_anns = self.original_annotations_by_image.get(image_id, [])
             
             # Show stats for original
-            stats_text = f"Original Annotations: {len(original_anns)}"  # Updated terminology
+            stats_text = f"Original Building Footprints: {len(original_anns)}"
             self.ax_orig.text(10, 20, stats_text, fontsize=9,
                              bbox=dict(facecolor='white', alpha=0.7))
             
@@ -547,23 +658,45 @@ class JSONAnnotationViewer:
                 segmentation = ann['segmentation']
                 
                 if isinstance(segmentation, dict):
-                    # RLE format - display placeholder
-                    center_x, center_y, width, height = ann.get('bbox', [0, 0, 50, 50])
-                    self.ax_orig.text(center_x + width/2, center_y + height/2,
-                                    "RLE format", color='white', fontsize=8,
-                                    bbox=dict(facecolor=COLORS["original"], alpha=0.5, pad=0.5),
-                                    ha='center', va='center')
+                    # RLE format - extract contours and plot
+                    try:
+                        contours = rle_to_contours(segmentation, (image_info['height'], image_info['width']))
+                        for contour in contours:
+                            polygon = plt.Polygon(contour, fill=False, 
+                                                edgecolor=COLORS["original"], linewidth=2, alpha=0.8)
+                            self.ax_orig.add_patch(polygon)
+                        
+                        # Show area in the center if available
+                        if 'area' in ann and contours:
+                            area = ann['area']
+                            # Use the first contour to calculate center
+                            centroid_x = contours[0][:, 0].mean()
+                            centroid_y = contours[0][:, 1].mean()
+                            
+                            self.ax_orig.text(
+                                centroid_x, centroid_y,
+                                f"Area: {area:.1f}",
+                                fontsize=7,
+                                color='white',
+                                bbox=dict(facecolor=COLORS["original"], alpha=0.5, pad=0.5),
+                                ha='center', va='center'
+                            )
+                    except Exception as e:
+                        # Fall back to placeholder if conversion fails
+                        print(f"Error processing RLE: {e}")
+                        center_x, center_y, width, height = ann.get('bbox', [0, 0, 50, 50])
+                        self.ax_orig.text(center_x + width/2, center_y + height/2,
+                                        "RLE format", color='white', fontsize=8,
+                                        bbox=dict(facecolor=COLORS["original"], alpha=0.5, pad=0.5),
+                                        ha='center', va='center')
                 elif isinstance(segmentation, list):
-                    # Draw each polygon
+                    # Convert flat list to array of [x,y] points
                     for seg in segmentation:
                         if not isinstance(seg, list) or len(seg) < 6:
                             continue
                         
                         try:
-                            # Convert flat list to array of [x,y] points
                             points = np.array(seg).reshape(-1, 2)
-                            
-                            # Draw polygon
                             polygon = plt.Polygon(points, fill=False, 
                                                 edgecolor=COLORS["original"], linewidth=2, alpha=0.8)
                             self.ax_orig.add_patch(polygon)
@@ -595,40 +728,36 @@ class JSONAnnotationViewer:
             annotation_counts = {
                 "valid_building": 0,
                 "zero_height_building": 0,
-                "invalid_polygon": 0
-            }
-            
-            # Count visible annotations
-            visible_counts = {
-                "valid_building": 0,
-                "zero_height_building": 0,
-                "invalid_polygon": 0
+                "invalid_building": 0  # Changed from "invalid_polygon" to "invalid_building"
             }
             
             # Draw processed annotations
             for ann in processed_anns:
                 # Get label and color
-                label = ann.get("label", "invalid_polygon")
+                label = ann.get("label", "")
+                
+                # Normalize label for consistent handling
+                if label == "invalid_polygon":
+                    normalized_label = "invalid_building"
+                else:
+                    normalized_label = label
                 
                 # Count this annotation
-                if label in annotation_counts:
-                    annotation_counts[label] += 1
+                if normalized_label in annotation_counts:
+                    annotation_counts[normalized_label] += 1
                 
                 # Check if we should display this type
                 show_this = False
                 
-                if label == "valid_building" and show_valid:
+                if normalized_label == "valid_building" and show_valid:
                     show_this = True
-                    visible_counts["valid_building"] += 1
                     color = COLORS["valid_building"]
-                elif label == "zero_height_building" and show_zero_height:
+                elif normalized_label == "zero_height_building" and show_zero_height:
                     show_this = True
-                    visible_counts["zero_height_building"] += 1
                     color = COLORS["zero_height_building"]
-                elif label == "invalid_polygon" and show_invalid:
+                elif normalized_label == "invalid_building" and show_invalid:
                     show_this = True
-                    visible_counts["invalid_polygon"] += 1
-                    color = COLORS["invalid_polygon"]
+                    color = COLORS["invalid_building"]  # Use standardized key
                 else:
                     continue
                 
@@ -640,15 +769,46 @@ class JSONAnnotationViewer:
                 segmentation = ann['segmentation']
                 
                 if isinstance(segmentation, dict):
-                    # RLE format - display placeholder
-                    center_x, center_y, width, height = ann.get('bbox', [0, 0, 50, 50])
-                    self.ax_proc.text(center_x + width/2, center_y + height/2,
-                                     "INVALID", color='white', fontsize=8,
-                                     bbox=dict(facecolor=color, alpha=0.5, pad=0.5),
-                                     ha='center', va='center')
+                    # RLE format - extract contours and plot
+                    try:
+                        contours = rle_to_contours(segmentation, (image_info['height'], image_info['width']))
+                        for contour in contours:
+                            if normalized_label == "invalid_building":
+                                # Just outline for invalid polygons
+                                self.ax_proc.plot(contour[:, 0], contour[:, 1], '-o',
+                                                color=color, linewidth=2, markersize=3, alpha=0.7)
+                            else:
+                                polygon = plt.Polygon(contour, fill=False,
+                                                   edgecolor=color, linewidth=2, alpha=0.8)
+                                self.ax_proc.add_patch(polygon)
+                                
+                        # Add height label for valid/zero-height buildings
+                        if "average_height" in ann and contours:
+                            height = ann["average_height"]
+                            # Use the first contour to calculate center
+                            centroid_x = contours[0][:, 0].mean()
+                            centroid_y = contours[0][:, 1].mean()
+                            
+                            label_text = f"{height:.1f}m" if normalized_label == "valid_building" else "0m"
+                            self.ax_proc.text(
+                                centroid_x, centroid_y,
+                                label_text,
+                                fontsize=7,
+                                color='white',
+                                bbox=dict(facecolor=color, alpha=0.5, pad=0.5),
+                                ha='center', va='center'
+                            )
+                    except Exception as e:
+                        # Fall back to placeholder if conversion fails
+                        print(f"Error processing RLE: {e}")
+                        center_x, center_y, width, height = ann.get('bbox', [0, 0, 50, 50])
+                        self.ax_proc.text(center_x + width/2, center_y + height/2,
+                                        "RLE format", color='white', fontsize=8,
+                                        bbox=dict(facecolor=color, alpha=0.5, pad=0.5),
+                                        ha='center', va='center')
                 elif isinstance(segmentation, list):
-                    if label == "invalid_polygon":
-                        # Special handling for invalid polygons
+                    if normalized_label == "invalid_building":  # Use standardized label
+                        # Special handling for invalid polygons/buildings
                         for seg in segmentation:
                             if not isinstance(seg, list) or len(seg) < 6:
                                 continue
@@ -678,7 +838,7 @@ class JSONAnnotationViewer:
                                     centroid_x = points[:, 0].mean()
                                     centroid_y = points[:, 1].mean()
                                     
-                                    label_text = f"{height:.1f}m" if label == "valid_building" else "0m"
+                                    label_text = f"{height:.1f}m" if normalized_label == "valid_building" else "0m"
                                     self.ax_proc.text(
                                         centroid_x, centroid_y,
                                         label_text,
@@ -692,8 +852,8 @@ class JSONAnnotationViewer:
             
             # Add annotation count info
             count_text = f"Valid={annotation_counts['valid_building']}, "
-            count_text += f"Zero Height={annotation_counts['zero_height_building']}, "
-            count_text += f"Invalid={annotation_counts['invalid_polygon']}"
+            count_text += f"Zero-Height={annotation_counts['zero_height_building']}, "
+            count_text += f"Invalid={annotation_counts['invalid_building']}"  # Updated key
             
             # Add mixed annotation type info
             unique_types = 0
@@ -701,7 +861,7 @@ class JSONAnnotationViewer:
                 unique_types += 1
             if annotation_counts['zero_height_building'] > 0:
                 unique_types += 1
-            if annotation_counts['invalid_polygon'] > 0:
+            if annotation_counts['invalid_building'] > 0:  # Updated key
                 unique_types += 1
             
             mixed_text = ""
@@ -714,11 +874,11 @@ class JSONAnnotationViewer:
             
             # Log detailed statistics for the current image
             print(f"\n### Image Statistics for {os.path.basename(img_path)} (ID: {image_id})")
-            print(f"- Original annotations: {len(original_anns)}")  # Updated terminology
-            print(f"- Processed annotations: {len(processed_anns)}")
-            print(f"- Valid buildings: {annotation_counts['valid_building']}")
-            print(f"- Zero height buildings: {annotation_counts['zero_height_building']}")
-            print(f"- Invalid buildings: {annotation_counts['invalid_polygon']}")  # Updated terminology
+            print(f"- Original building footprints: {len(original_anns)}")
+            print(f"- Processed building footprints: {len(processed_anns)}")
+            print(f"- Valid building footprints: {annotation_counts['valid_building']}")
+            print(f"- Zero-height building footprints: {annotation_counts['zero_height_building']}")
+            print(f"- Invalid building footprints: {annotation_counts['invalid_building']}")  # Updated key
             
             if unique_types >= 2:
                 print(f"- Has mixed annotation types: Yes ({unique_types} different types)")
@@ -775,7 +935,7 @@ def main():
     
     # Setup logging to both terminal and file
     log_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), 
+        STATS_DIR, 
         f"json_viewer_log_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
     )
     sys.stdout = TerminalLogger(log_path)
